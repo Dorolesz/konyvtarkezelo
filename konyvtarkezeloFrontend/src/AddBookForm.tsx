@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import './AddBookForm.css';
+import BooksList from './BooksList';
 
 const AddBookForm = () => {
   const [author, setAuthor] = useState('');
@@ -9,6 +11,11 @@ const AddBookForm = () => {
   const [pages, setPages] = useState('');
   const [available, setAvailable] = useState(true);
   const [error, setError] = useState('');
+
+  const fetchBooks = () => {
+    // Implement the logic to fetch books here
+    console.log('Fetching books...');
+  };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -29,7 +36,7 @@ const AddBookForm = () => {
       available
     };
 
-    axios.post('http://localhost:3000/api/books', newBook)
+    axios.post('http://localhost:3000/book', newBook)
       .then(() => {
         alert('A könyv sikeresen hozzáadva!');
         // Űrlap törlése sikeres mentés után
@@ -39,6 +46,8 @@ const AddBookForm = () => {
         setGenre('');
         setPages('');
         setAvailable(true);
+        // Frissítjük a könyvek listáját
+        fetchBooks();
       })
       .catch((error) => {
         setError('Hiba történt a könyv hozzáadása során.');
@@ -47,9 +56,9 @@ const AddBookForm = () => {
   };
 
   return (
-    <div>
+    <div className="form-container">
       <h2>Új könyv hozzáadása</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="author">Szerző:</label>
@@ -112,6 +121,7 @@ const AddBookForm = () => {
         </div>
         <button type="submit">Könyv hozzáadása</button>
       </form>
+      <BooksList />
     </div>
   );
 };
