@@ -21,4 +21,5 @@ model Book {
   genre     String
   pages     Int
   available Boolean
+  imageUrl  String
 }

@@ -1,21 +1,59 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { PrismaService } from '../prisma.service';
+import { Book, Prisma } from '@prisma/client';
+import { CreateBookDto } from './dto/create-book.dto';
 
 @Injectable()
-export class BookService {
-  async getAllBooks() {
-    return prisma.book.findMany();
+export class BooksService {
+  constructor(private prisma: PrismaService) {}
+
+  async getBooks(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.BookWhereUniqueInput;
+    where?: Prisma.BookWhereInput;
+    orderBy?: Prisma.BookOrderByWithRelationInput;
+  }): Promise<Book[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+    return this.prisma.book.findMany({
+      skip,
+      take: Number(take),
+      cursor,
+      where,
+      orderBy,
+    });
   }
 
-  async getBookById(id: string) {
-    return prisma.book.findUnique({ where: { id: Number(id) } });
+  async getBookById(where: Prisma.BookWhereUniqueInput): Promise<Book | null> {
+    return this.prisma.book.findUnique({
+      where,
+    });
   }
 
-  async deleteBook(id: string) {
-    return prisma.book.delete({ where: { id: Number(id) } });
+  async createBook(data: Prisma.BookCreateInput): Promise<Book> {
+    return this.prisma.book.create({
+      data,
+    });
   }
 
-  // Add other methods as needed
+  async updateBook(params: {
+    where: Prisma.BookWhereUniqueInput;
+    data: Prisma.BookUpdateInput;
+  }): Promise<Book> {
+    const { where, data } = params;
+    return this.prisma.book.update({
+      data,
+      where,
+    });
+  }
+
+  async deleteBook(where: Prisma.BookWhereUniqueInput): Promise<Book> {
+    return this.prisma.book.delete({
+      where,
+    });
+  }
+
+  async countBooks(): Promise<number> {
+    return this.prisma.book.count();
+  }
 }

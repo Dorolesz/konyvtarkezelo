@@ -1,58 +1,44 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './AddBookForm.css';
-import BooksList from './BooksList';
 
-const AddBookForm = () => {
+const AddBookForm: React.FC = () => {
   const [author, setAuthor] = useState('');
   const [title, setTitle] = useState('');
   const [year, setYear] = useState('');
   const [genre, setGenre] = useState('');
   const [pages, setPages] = useState('');
-  const [available, setAvailable] = useState(true);
-  const [error, setError] = useState('');
+  const [available, setAvailable] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchBooks = () => {
-    // Implement the logic to fetch books here
-    console.log('Fetching books...');
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
-    // Validáljuk az űrlapot
-    if (!author || !title || !year || !genre || !pages) {
-      setError('Minden mezőt ki kell tölteni!');
-      return;
-    }
-
-    // A validáció után küldjük az adatokat a backend-nek
     const newBook = {
       author,
       title,
-      year: Number(year),
+      year: parseInt(year, 10),
       genre,
-      pages: Number(pages),
-      available
+      pages: parseInt(pages, 10),
+      available,
+      imageUrl,
     };
 
-    axios.post('http://localhost:3000/book', newBook)
-      .then(() => {
-        alert('A könyv sikeresen hozzáadva!');
-        // Űrlap törlése sikeres mentés után
-        setAuthor('');
-        setTitle('');
-        setYear('');
-        setGenre('');
-        setPages('');
-        setAvailable(true);
-        // Frissítjük a könyvek listáját
-        fetchBooks();
-      })
-      .catch((error) => {
-        setError('Hiba történt a könyv hozzáadása során.');
-        console.error(error);
-      });
+    try {
+      await axios.post('http://localhost:3000/books', newBook);
+      // Sikeres POST kérés után töröljük az űrlap mezőit
+      setAuthor('');
+      setTitle('');
+      setYear('');
+      setGenre('');
+      setPages('');
+      setAvailable(false);
+      setImageUrl('');
+    } catch (err) {
+      setError('Hiba történt a könyv hozzáadása során.');
+    }
   };
 
   return (
@@ -119,9 +105,18 @@ const AddBookForm = () => {
             onChange={(e) => setAvailable(e.target.checked)}
           />
         </div>
-        <button type="submit">Könyv hozzáadása</button>
+        <div>
+          <label htmlFor="imageUrl">Kép URL:</label>
+          <input
+            type="text"
+            id="imageUrl"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit">Hozzáadás</button>
       </form>
-      <BooksList />
     </div>
   );
 };

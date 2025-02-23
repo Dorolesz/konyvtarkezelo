@@ -1,28 +1,26 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
+import process from 'process';
 
 const prisma = new PrismaClient();
 
-const generateBooks = async (numBooks: number) => {
-  for (let i = 0; i < numBooks; i++) {
+async function main() {
+  const books = Array.from({ length: 30 }, () => ({
+    author: faker.name.fullName(),
+    title: faker.lorem.words(3),
+    year: faker.date.past({ years: 30 }).getFullYear(), // Generáljunk egy véletlenszerű évet az elmúlt 30 évből
+    genre: faker.music.genre(),
+    pages: faker.number.int({ min: 100, max: 1000 }),
+    available: faker.datatype.boolean(),
+    imageUrl: 'https://storage.googleapis.com/pod_public/1300/138617.jpg', // Használjuk az imageUrl mezőt
+  }));
+
+  for (const book of books) {
     await prisma.book.create({
-      data: {
-        author: faker.name.fullName(),
-        title: faker.lorem.words(3),
-        year: faker.date.past({ years: 50 }).getFullYear(), // Generáljunk egy véletlenszerű évet az elmúlt 50 évből
-        genre: faker.music.genre(),
-        pages: faker.number.int({ min: 100, max: 1000 }),
-        available: faker.datatype.boolean(),
-      },
+      data: book,
     });
   }
-};
-
-const main = async () => {
-  console.log('Adatbázis feltöltése...');
-  await generateBooks(50); // Generáljunk 50 könyvet
-  console.log('Adatbázis sikeresen feltöltve.');
-};
+}
 
 main()
   .catch((e) => {

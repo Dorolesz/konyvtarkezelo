@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsString, IsUrl, Max } from "class-validator";
 export class CreateBookDto {
 
   @IsString()
@@ -11,6 +11,7 @@ export class CreateBookDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @Max(new Date().getFullYear())
   year: number;
 
   @IsString()
@@ -24,4 +25,8 @@ export class CreateBookDto {
   @IsBoolean()
   @IsNotEmpty()
   available: boolean;
+
+  @IsUrl()
+  @IsNotEmpty()
+  imageUrl: string;
 }
